@@ -23,14 +23,16 @@ class SmartBedsideSystem:
         GPIO.setwarnings(False)  # Disable warnings.
         GPIO.setup(self.BUZZER_PIN, GPIO.OUT)
         GPIO.setup(self.BUTTON_PIN, GPIO.IN)
+        GPIO.setup(self.O2_SERVO_PIN, GPIO.OUT)
 
         self.spo2_hr_sensor = DFRobot_BloodOxygen_S()  # Replace None by initializing the MAX30102 sensor (see User Story #1).
         self.spo2_hr_sensor.begin()
         self.spo2_hr_sensor.sensor_start_collect()
         self.alarm_on = False
 
-        self.o2_servo = None  # Replace None by initializing the servo motor's PWM instance (see User Story #4).
-        self.o2_valve_angle = None  # Replace None by initializing the valve angle, in degrees (see User Story #4).
+        self.o2_servo = GPIO.PWM(self.O2_SERVO_PIN, 50)
+        self.o2_servo.start(5.0)
+        self.o2_valve_angle = 0
 
     def read_vital_signs(self) -> int:
         """
@@ -72,7 +74,13 @@ class SmartBedsideSystem:
         Args: angle (float): The target valve angle in degrees, between 0 and 180 degrees, inclusive.
         Raises: SmartBedsideError: If the target angle is outside the valid range of 0 to 180 degrees.
         """
-        # See User Story #4.
+        if angle < 0 or angle > 180:
+            raise SmartBedsideError()
+
+        duty_cycle = 5.0 + (angle / 180.0) * 5.0
+
+        self.o2_servo.ChangeDutyCycle(duty_cycle)
+        self.o2_valve_angle = angle
 
     def manage_oxygen_valve(self) -> None:
         """
