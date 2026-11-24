@@ -25,7 +25,7 @@ class SmartBedsideSystem:
         GPIO.setup(self.BUTTON_PIN, GPIO.IN)
         GPIO.setup(self.O2_SERVO_PIN, GPIO.OUT)
 
-        self.spo2_hr_sensor = DFRobot_BloodOxygen_S()  # Replace None by initializing the MAX30102 sensor (see User Story #1).
+        self.spo2_hr_sensor = DFRobot_BloodOxygen_S()
         self.spo2_hr_sensor.begin()
         self.spo2_hr_sensor.sensor_start_collect()
         self.alarm_on = False
@@ -46,6 +46,7 @@ class SmartBedsideSystem:
             raise SmartBedsideError()
 
         return spo2
+
     def manage_alarm(self) -> None:
         """
         Activate or deactivate the alarm based on the patient's blood oxygen saturation (SpO₂).
