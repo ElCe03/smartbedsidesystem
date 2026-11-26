@@ -17,13 +17,15 @@ class SmartBedsideSystem:
     BUZZER_PIN = 22  # KY-012 active buzzer used as the alarm (see User Story #2).
     BUTTON_PIN = 16  # B3F-1020 pushbutton used to stop the alarm (see User Story #3).
     O2_SERVO_PIN = 12  # MG90S servo motor controlling the oxygen delivery valve (see User Story #4).
-
+    ALARM_LED_PIN = 18
     def __init__(self):
         GPIO.setmode(GPIO.BOARD)  # Refer to the GPIO pins by their physical number on the board.
         GPIO.setwarnings(False)  # Disable warnings.
         GPIO.setup(self.BUZZER_PIN, GPIO.OUT)
         GPIO.setup(self.BUTTON_PIN, GPIO.IN)
         GPIO.setup(self.O2_SERVO_PIN, GPIO.OUT)
+        GPIO.setup(self.ALARM_LED_PIN, GPIO.OUT)
+
 
         self.spo2_hr_sensor = DFRobot_BloodOxygen_S()
         self.spo2_hr_sensor.begin()
@@ -60,9 +62,13 @@ class SmartBedsideSystem:
         if spo2 < 88 or hb < 50 or hb>130:
             self.alarm_on = True
             GPIO.output(self.BUZZER_PIN, GPIO.HIGH)
+            GPIO.output(self.ALARM_LED_PIN, GPIO.HIGH)
+
         else:
             self.alarm_on = False
             GPIO.output(self.BUZZER_PIN, GPIO.LOW)
+            GPIO.output(self.ALARM_LED_PIN, GPIO.LOW)
+
 
     def stop_alarm(self) -> None:
         """
