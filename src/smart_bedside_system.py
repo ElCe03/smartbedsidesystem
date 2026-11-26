@@ -41,21 +41,23 @@ class SmartBedsideSystem:
         Raises: SmartBedsideError: If the sensor returns an invalid reading (-1).
         """
         spo2 = self.spo2_hr_sensor.get_spo2()
-        hr= self.spo2_hr_sensor.get_heartbeat()
+        hb= self.spo2_hr_sensor.get_heartbeat()
 
-        if spo2 == -1 or hr==-1:
+        if spo2 == -1 or hb==-1:
             raise SmartBedsideError()
 
-        return [spo2,hr]
+        return [spo2,hb]
 
     def manage_alarm(self) -> None:
         """
         Activate or deactivate the alarm based on the patient's blood oxygen saturation (SpO₂).
         Raises: SmartBedsideError: If the SpO₂ reading is invalid (propagated from read_vital_signs()).
         """
-        spo2 = self.read_vital_signs()
+        vital_signs = self.read_vital_signs()
+        spo2= vital_signs[0]
+        hb= vital_signs[1]
 
-        if spo2 < 88:
+        if spo2 < 88 or hb < 50 or hb>130:
             self.alarm_on = True
             GPIO.output(self.BUZZER_PIN, GPIO.HIGH)
         else:
